@@ -1,8 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("com.google.dagger.hilt.android") // Hilt para inyección de dependencias
     id("kotlin-kapt") // Para generación de código con KAPT
+    id("com.google.gms.google-services") // Plugin de Google Services
 }
 
 android {
@@ -19,6 +21,7 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        multiDexEnabled = true // Habilitar multidex si tienes muchas dependencias
     }
 
     buildTypes {
@@ -56,6 +59,15 @@ android {
 }
 
 dependencies {
+    // Firebase BOM para gestionar versiones de Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+
     // Hilt para inyección de dependencias
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-android-compiler:2.48")
@@ -78,8 +90,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("androidx.compose.material:material-icons-extended:1.6.0") // Usa la última versión estable
-
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
 
     // Dependencias para pruebas
     testImplementation(libs.junit)
@@ -90,3 +101,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+// Aplicar el plugin de Google Services al final
+apply(plugin = "com.google.gms.google-services")
