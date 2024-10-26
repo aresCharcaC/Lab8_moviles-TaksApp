@@ -8,23 +8,20 @@ import androidx.room.Update
 import com.example.lab8.data.model.Task
 
 
-@Dao
 interface TaskDao {
-
-    // Obtener todas las tareas
-    @Query("SELECT * FROM tasks")
+    // Obtiene todas las tareas ordenadas por ID descendente (las más nuevas primero)
+    @Query("SELECT * FROM tasks ORDER BY id DESC")
     suspend fun getAllTasks(): List<Task>
 
-    // Insertar una nueva tarea
+    // Inserta una nueva tarea
     @Insert
     suspend fun insertTask(task: Task)
 
-    // Marcar una tarea como completada o no completada
+    // Actualiza una tarea existente (usado para marcar como completada y editar)
     @Update
     suspend fun updateTask(task: Task)
 
-    // Eliminar todas las tareas
+    // Elimina todas las tareas
     @Query("DELETE FROM tasks")
     suspend fun deleteAllTasks()
 }
-
