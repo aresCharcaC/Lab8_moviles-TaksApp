@@ -17,6 +17,7 @@ class TaskRepository @Inject constructor() {
     private val database = FirebaseDatabase.getInstance()
     private val tasksRef = database.getReference("tasks")
 
+    // Obtiene todas las tareas en tiempo real
     fun getTasks(): Flow<List<Task>> = callbackFlow {
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -43,6 +44,7 @@ class TaskRepository @Inject constructor() {
         awaitClose { tasksRef.removeEventListener(listener) }
     }
 
+    // Agrega una nueva tarea
     suspend fun addTask(description: String) {
         val newTaskRef = tasksRef.push()
         val taskData = hashMapOf(
@@ -52,15 +54,23 @@ class TaskRepository @Inject constructor() {
         newTaskRef.setValue(taskData).await()
     }
 
+    // Cambia el estado de completado de una tarea
     suspend fun toggleTaskCompletion(taskId: String, isCompleted: Boolean) {
         tasksRef.child(taskId).child("isCompleted").setValue(isCompleted).await()
     }
 
+    // Actualiza la descripción de una tarea
     suspend fun updateTaskDescription(taskId: String, newDescription: String) {
         tasksRef.child(taskId).child("description").setValue(newDescription).await()
     }
 
+    // Elimina todas las tareas
     suspend fun deleteAllTasks() {
         tasksRef.removeValue().await()
+    }
+
+    // Nueva función para eliminar una tarea individual
+    suspend fun deleteTask(taskId: String) {
+        tasksRef.child(taskId).removeValue().await()
     }
 }

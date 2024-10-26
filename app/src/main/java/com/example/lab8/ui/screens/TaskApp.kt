@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.lab8.ui.components.DeleteConfirmationDialog
 import com.example.lab8.ui.components.EditTaskDialog
 import com.example.lab8.ui.components.TaskItem
 import com.example.lab8.ui.viewmodel.TaskViewModel
@@ -39,13 +40,18 @@ import com.example.lab8.ui.viewmodel.TaskViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskApp(viewModel: TaskViewModel) {
+    // Estados del UI
     var showConfirmDeleteDialog by remember { mutableStateOf(false) }
     var newTaskDescription by remember { mutableStateOf("") }
+
+    // Obtener estados del ViewModel
     val tasks by viewModel.tasks.collectAsState()
     val editingTask by viewModel.editingTask.collectAsState()
+    val taskToDelete by viewModel.taskToDelete.collectAsState()
 
     Scaffold(
         topBar = {
+            // Barra superior de la aplicación
             TopAppBar(
                 title = { Text("Mis Tareas") },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -60,7 +66,7 @@ fun TaskApp(viewModel: TaskViewModel) {
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            // Campo de entrada para nueva tarea
+            // Campo para agregar nueva tarea
             OutlinedTextField(
                 value = newTaskDescription,
                 onValueChange = { newTaskDescription = it },
@@ -90,12 +96,13 @@ fun TaskApp(viewModel: TaskViewModel) {
                     TaskItem(
                         task = task,
                         onToggleCompletion = { viewModel.toggleTaskCompletion(task) },
-                        onEditClick = { viewModel.startEditingTask(task) }
+                        onEditClick = { viewModel.startEditingTask(task) },
+                        onDeleteClick = { viewModel.confirmDeleteTask(task) }
                     )
                 }
             }
 
-            // Botón para eliminar todas las tareas
+            // Botón para eliminar todas las tareas (solo visible si hay tareas)
             if (tasks.isNotEmpty()) {
                 Button(
                     onClick = { showConfirmDeleteDialog = true },
@@ -113,13 +120,25 @@ fun TaskApp(viewModel: TaskViewModel) {
             }
         }
 
-        // Diálogo de edición
+        // Diálogo de edición de tarea
         editingTask?.let { task ->
             EditTaskDialog(
                 task = task,
                 onDismiss = { viewModel.cancelEditing() },
                 onConfirm = { newDescription ->
                     viewModel.updateTaskDescription(task.id, newDescription)
+                }
+            )
+        }
+
+        // Diálogo de confirmación para eliminar una tarea individual
+        taskToDelete?.let {
+            DeleteConfirmationDialog(
+                onConfirm = {
+                    viewModel.deleteTask()
+                },
+                onDismiss = {
+                    viewModel.cancelDeleteTask()
                 }
             )
         }
@@ -140,7 +159,7 @@ fun TaskApp(viewModel: TaskViewModel) {
                             containerColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text("Eliminar")
+                        Text("Eliminar todas")
                     }
                 },
                 dismissButton = {
@@ -152,6 +171,3 @@ fun TaskApp(viewModel: TaskViewModel) {
         }
     }
 }
-
-
-

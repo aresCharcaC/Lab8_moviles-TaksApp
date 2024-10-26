@@ -14,11 +14,17 @@ import javax.inject.Inject
 class TaskViewModel @Inject constructor(
     private val repository: TaskRepository
 ) : ViewModel() {
+    // Estado para la lista de tareas
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
     val tasks: StateFlow<List<Task>> = _tasks
 
+    // Estado para la tarea que se está editando
     private val _editingTask = MutableStateFlow<Task?>(null)
     val editingTask: StateFlow<Task?> = _editingTask
+
+    // Estado para mostrar el diálogo de confirmación de eliminación
+    private val _taskToDelete = MutableStateFlow<Task?>(null)
+    val taskToDelete: StateFlow<Task?> = _taskToDelete
 
     init {
         loadTasks()
@@ -59,6 +65,26 @@ class TaskViewModel @Inject constructor(
 
     fun cancelEditing() {
         _editingTask.value = null
+    }
+
+    // Muestra el diálogo de confirmación de eliminación
+    fun confirmDeleteTask(task: Task) {
+        _taskToDelete.value = task
+    }
+
+    // Cancela la eliminación de la tarea
+    fun cancelDeleteTask() {
+        _taskToDelete.value = null
+    }
+
+    // Elimina la tarea seleccionada
+    fun deleteTask() {
+        viewModelScope.launch {
+            _taskToDelete.value?.let { task ->
+                repository.deleteTask(task.id)
+                _taskToDelete.value = null
+            }
+        }
     }
 
     fun deleteAllTasks() {

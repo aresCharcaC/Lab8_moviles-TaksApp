@@ -68,6 +68,9 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
+    // WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+
     // Hilt para inyección de dependencias
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-android-compiler:2.48")

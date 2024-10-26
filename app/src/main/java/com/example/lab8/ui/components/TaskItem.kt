@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material3.*
@@ -25,6 +26,7 @@ fun TaskItem(
     task: Task,
     onToggleCompletion: () -> Unit,
     onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -40,6 +42,7 @@ fun TaskItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Texto de la tarea
             Text(
                 text = task.description,
                 modifier = Modifier.weight(1f),
@@ -49,16 +52,24 @@ fun TaskItem(
                 overflow = TextOverflow.Ellipsis
             )
 
+            // Botones de acción
             Row {
-                // Botón de edición
+                // Botón de editar
                 IconButton(onClick = onEditClick) {
                     Icon(Icons.Default.Edit, "Editar tarea")
                 }
 
-                // Botón de completado
-                IconButton(
-                    onClick = onToggleCompletion
-                ) {
+                // Botón de eliminar
+                IconButton(onClick = onDeleteClick) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Eliminar tarea",
+                        tint = Color.Red
+                    )
+                }
+
+                // Botón de completar
+                IconButton(onClick = onToggleCompletion) {
                     Icon(
                         if (task.isCompleted) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
                         contentDescription = if (task.isCompleted) "Marcar como pendiente" else "Marcar como completada",
@@ -68,6 +79,34 @@ fun TaskItem(
             }
         }
     }
+}
+
+// Diálogo de confirmación de eliminación
+@Composable
+fun DeleteConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Confirmar eliminación") },
+        text = { Text("¿Estás seguro de que deseas eliminar esta tarea?") },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text("Eliminar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
 }
 
 @Composable
